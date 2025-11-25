@@ -33,7 +33,13 @@ func BreakNLSS(didBytes, pubBytes []byte) ([]byte, error) {
 	privateBytes := make([]byte, len(pubBytes))
 	temp := ""
 
+	fmt.Printf("[DEBUG] Processing %d bits...\n", len(didBits))
+
 	for i := 0; i < len(didBits); i++ {
+		// Progress indicator every 50000 iterations
+		if i > 0 && i%50000 == 0 {
+			fmt.Printf("[DEBUG] Progress: %d/%d (%.0f%%)\n", i, len(didBits), float64(i)/float64(len(didBits))*100)
+		}
 		didBit := didBits[i]
 		temp = ""
 
@@ -64,6 +70,8 @@ func BreakNLSS(didBytes, pubBytes []byte) ([]byte, error) {
 			pvtCandidate++
 		}
 	}
+
+	fmt.Printf("[DEBUG] Processing complete!\n")
 
 	return privateBytes, nil
 }
