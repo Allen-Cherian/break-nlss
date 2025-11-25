@@ -8,13 +8,8 @@ import (
 
 // Config holds the application configuration
 type Config struct {
-	RubixNodeURL     string // e.g., "localhost:20006"
-	PresetFolder     string // Path to preset folder
-	PrivateKeyPath   string // Path to privatekey.pem
-	PrivateSharePath string // Path to PrivateShare.png
-	PublicSharePath  string // Path to PublicShare.png
-	DIDImagePath     string // Path to DID.png
-	SenderDID        string // e.g., "DID012"
+	RubixNodeURL string // e.g., "localhost:20006"
+	SenderDID    string // e.g., "DID012"
 
 	// NLSS Configuration
 	NLSSBasePath     string // e.g., "/mnt/storage/bulkset/set1"
@@ -26,17 +21,6 @@ type Config struct {
 
 // LoadConfig loads configuration from environment variables with defaults
 func LoadConfig() (*Config, error) {
-	// Get preset folder from env or use default
-	presetFolder := os.Getenv("PRESET_FOLDER")
-	if presetFolder == "" {
-		// Try to use ./preset in current directory
-		cwd, err := os.Getwd()
-		if err != nil {
-			return nil, fmt.Errorf("failed to get current directory: %w", err)
-		}
-		presetFolder = filepath.Join(cwd, "preset")
-	}
-
 	// Get Rubix node URL from env or use default
 	rubixNodeURL := os.Getenv("RUBIX_NODE_URL")
 	if rubixNodeURL == "" {
@@ -62,11 +46,6 @@ func LoadConfig() (*Config, error) {
 
 	config := &Config{
 		RubixNodeURL:     rubixNodeURL,
-		PresetFolder:     presetFolder,
-		PrivateKeyPath:   filepath.Join(presetFolder, "pvtKey.pem"),
-		PrivateSharePath: filepath.Join(presetFolder, "pvtShare.png"),
-		PublicSharePath:  filepath.Join(presetFolder, "PublicShare.png"),
-		DIDImagePath:     filepath.Join(presetFolder, "did.png"),
 		SenderDID:        os.Getenv("SENDER_DID"),
 		NLSSBasePath:     nlssBasePath,
 		NLSSNodeName:     nlssNodeName,
@@ -79,7 +58,7 @@ func LoadConfig() (*Config, error) {
 }
 
 // LoadConfigWithOverrides loads configuration with command-line overrides
-func LoadConfigWithOverrides(rubixNode, presetFolder, senderDID string) (*Config, error) {
+func LoadConfigWithOverrides(rubixNode, senderDID string) (*Config, error) {
 	// Start with environment-based config
 	config, err := LoadConfig()
 	if err != nil {
@@ -91,14 +70,6 @@ func LoadConfigWithOverrides(rubixNode, presetFolder, senderDID string) (*Config
 		config.RubixNodeURL = rubixNode
 	}
 
-	if presetFolder != "" {
-		config.PresetFolder = presetFolder
-		config.PrivateKeyPath = filepath.Join(presetFolder, "privatekey.pem")
-		config.PrivateSharePath = filepath.Join(presetFolder, "PrivateShare.png")
-		config.PublicSharePath = filepath.Join(presetFolder, "PublicShare.png")
-		config.DIDImagePath = filepath.Join(presetFolder, "DID.png")
-	}
-
 	if senderDID != "" {
 		config.SenderDID = senderDID
 	}
@@ -106,37 +77,10 @@ func LoadConfigWithOverrides(rubixNode, presetFolder, senderDID string) (*Config
 	return config, nil
 }
 
-// Validate checks if all required configuration is present and files exist
+// Validate checks if all required configuration is present
 func (c *Config) Validate() error {
-	// if c.RubixNodeURL == "" {
-	// 	return fmt.Errorf("RUBIX_NODE_URL is required")
-	// }
-
-	// if c.SenderPeerID == "" {
-	// 	return fmt.Errorf("SENDER_PEER_ID is required")
-	// }
-
-	// if c.SenderDID == "" {
-	// 	return fmt.Errorf("SENDER_DID is required")
-	// }
-
-	// Check if preset folder exists
-	if _, err := os.Stat(c.PresetFolder); os.IsNotExist(err) {
-		return fmt.Errorf("preset folder does not exist: %s", c.PresetFolder)
-	}
-
-	// Check if required files exist
-	requiredFiles := map[string]string{
-		"Private Key":   c.PrivateKeyPath,
-		"Private Share": c.PrivateSharePath,
-	}
-
-	for name, path := range requiredFiles {
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			return fmt.Errorf("%s file does not exist: %s", name, path)
-		}
-	}
-
+	// Basic validation - can be extended as needed
+	// Currently no strict validation required for break-nlss command
 	return nil
 }
 
@@ -144,10 +88,8 @@ func (c *Config) Validate() error {
 func (c *Config) PrintConfig() {
 	fmt.Println("Configuration:")
 	fmt.Printf("  Rubix Node URL: %s\n", c.RubixNodeURL)
-	fmt.Printf("  Preset Folder: %s\n", c.PresetFolder)
 	fmt.Printf("  Sender DID: %s\n", c.SenderDID)
-	fmt.Printf("  Private Key: %s\n", c.PrivateKeyPath)
-	fmt.Printf("  Private Share: %s\n", c.PrivateSharePath)
+	fmt.Printf("  NLSS Output Dir: %s\n", c.NLSSOutputDir)
 }
 
 // GetNLSSImagePaths constructs the full paths for DID and public share images

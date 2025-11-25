@@ -36,9 +36,11 @@ func printUsage() {
 	fmt.Println("  help         - Show this help message")
 	fmt.Println()
 	fmt.Println("Environment Variables:")
-	fmt.Println("  RUBIX_NODE_URL  - Rubix node URL (default: localhost:20006)")
-	fmt.Println("  SENDER_DID      - Sender DID")
-	fmt.Println("  PRESET_FOLDER   - Path to preset folder (default: ./preset)")
+	fmt.Println("  RUBIX_NODE_URL   - Rubix node URL (default: localhost:20006)")
+	fmt.Println("  SENDER_DID       - Sender DID")
+	fmt.Println("  NLSS_BASE_PATH   - Base path for NLSS DID storage")
+	fmt.Println("  NLSS_NODE_NAME   - Node name for NLSS paths")
+	fmt.Println("  NLSS_OUTPUT_DIR  - Output directory for private shares (default: ./output)")
 	fmt.Println()
 	fmt.Println("Examples:")
 	fmt.Println("  # Export DIDs with balance > 0 to file")
@@ -102,7 +104,6 @@ func runTransfer() {
 	amount := transferCmd.Float64("amount", 0, "Amount to transfer (required)")
 	comment := transferCmd.String("comment", "", "Transfer comment (optional)")
 	rubixNode := transferCmd.String("rubix-node", "", "Rubix node URL (default: from env or localhost:20006)")
-	presetFolder := transferCmd.String("preset", "", "Preset folder path (default: from env or ./preset)")
 	senderDID := transferCmd.String("sender-did", "", "Sender DID (default: from env)")
 
 	// File mode flags
@@ -170,7 +171,7 @@ func runTransfer() {
 	}
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, *presetFolder, finalSenderDID)
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, finalSenderDID)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -225,7 +226,7 @@ func runBalance() {
 	balanceCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", *did)
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, *did)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -264,7 +265,7 @@ func runListDIDs() {
 	listCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "")
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "")
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -305,7 +306,7 @@ func runExportDIDs() {
 	exportCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "")
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "")
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
