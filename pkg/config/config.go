@@ -14,7 +14,6 @@ type Config struct {
 	PrivateSharePath string // Path to PrivateShare.png
 	PublicSharePath  string // Path to PublicShare.png
 	DIDImagePath     string // Path to DID.png
-	SenderPeerID     string // e.g., "peer789"
 	SenderDID        string // e.g., "DID012"
 
 	// NLSS Configuration
@@ -68,7 +67,6 @@ func LoadConfig() (*Config, error) {
 		PrivateSharePath: filepath.Join(presetFolder, "pvtShare.png"),
 		PublicSharePath:  filepath.Join(presetFolder, "PublicShare.png"),
 		DIDImagePath:     filepath.Join(presetFolder, "did.png"),
-		SenderPeerID:     os.Getenv("SENDER_PEER_ID"),
 		SenderDID:        os.Getenv("SENDER_DID"),
 		NLSSBasePath:     nlssBasePath,
 		NLSSNodeName:     nlssNodeName,
@@ -81,7 +79,7 @@ func LoadConfig() (*Config, error) {
 }
 
 // LoadConfigWithOverrides loads configuration with command-line overrides
-func LoadConfigWithOverrides(rubixNode, presetFolder, senderPeerID, senderDID string) (*Config, error) {
+func LoadConfigWithOverrides(rubixNode, presetFolder, senderDID string) (*Config, error) {
 	// Start with environment-based config
 	config, err := LoadConfig()
 	if err != nil {
@@ -99,10 +97,6 @@ func LoadConfigWithOverrides(rubixNode, presetFolder, senderPeerID, senderDID st
 		config.PrivateSharePath = filepath.Join(presetFolder, "PrivateShare.png")
 		config.PublicSharePath = filepath.Join(presetFolder, "PublicShare.png")
 		config.DIDImagePath = filepath.Join(presetFolder, "DID.png")
-	}
-
-	if senderPeerID != "" {
-		config.SenderPeerID = senderPeerID
 	}
 
 	if senderDID != "" {
@@ -151,7 +145,6 @@ func (c *Config) PrintConfig() {
 	fmt.Println("Configuration:")
 	fmt.Printf("  Rubix Node URL: %s\n", c.RubixNodeURL)
 	fmt.Printf("  Preset Folder: %s\n", c.PresetFolder)
-	fmt.Printf("  Sender Peer ID: %s\n", c.SenderPeerID)
 	fmt.Printf("  Sender DID: %s\n", c.SenderDID)
 	fmt.Printf("  Private Key: %s\n", c.PrivateKeyPath)
 	fmt.Printf("  Private Share: %s\n", c.PrivateSharePath)

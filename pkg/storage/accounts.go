@@ -10,7 +10,6 @@ import (
 // DIDAccount represents a DID with its balance information
 type DIDAccount struct {
 	DID        string    `json:"did"`
-	PeerID     string    `json:"peer_id,omitempty"`
 	Balance    float64   `json:"balance"`
 	DIDType    int       `json:"did_type"`
 	PledgedRBT float64   `json:"pledged_rbt"`

@@ -11,15 +11,12 @@ import (
 
 // TransferParams contains all parameters needed for a token transfer
 type TransferParams struct {
-	RubixNodeURL     string
-	SenderPeerID     string
-	SenderDID        string
-	ReceiverDID      string
-	Amount           float64
-	Comment          string
-	PrivateKeyPath   string
-	PrivateSharePath string
-	NLSSOutputDir    string // Output directory where pvtShare.png files are stored
+	RubixNodeURL  string
+	SenderDID     string
+	ReceiverDID   string
+	Amount        float64
+	Comment       string
+	NLSSOutputDir string // Output directory where pvtShare.png files are stored
 }
 
 // TransferTokens performs a complete two-phase token transfer
@@ -77,28 +74,12 @@ func TransferTokens(params TransferParams) error {
 	}
 	fmt.Printf("✓ Image signature generated (%d bytes)\n", len(imgSignBytes))
 	fmt.Println("The image sign here :", imgSignBytes)
-	// 2.3: Generate ECDSA signature
-	fmt.Println("  Generating ECDSA signature...")
-	// Hash the image signature with SHA3-256
-	imgSignHash := crypto.CalculateSHA3Hash(string(imgSignBytes))
-	fmt.Printf("  Image signature SHA3 hash: %s\n", imgSignHash)
 
-	// Load private key
-	privateKey, err := crypto.LoadPrivateKeyFromPEM(params.PrivateKeyPath)
-	if err != nil {
-		return fmt.Errorf("failed to load private key: %w", err)
-	}
-
-	// Sign the hash
-	pvtSignBytes, err := crypto.SignWithECDSA(privateKey, []byte(imgSignHash))
-	if err != nil {
-		return fmt.Errorf("failed to sign with ECDSA: %w", err)
-	}
-	fmt.Printf("✓ ECDSA signature generated (%d bytes)\n", len(pvtSignBytes))
-
-	var pvtBytes []byte
-	// 2.4: Submit signatures
+	// 2.3: Submit signatures
 	fmt.Println("\nPhase 3: Submitting signatures...")
+
+	// Use empty byte array for ECDSA signature (not required)
+	var pvtBytes []byte
 
 	signReq := SignatureRequest{
 		ID: requestID,

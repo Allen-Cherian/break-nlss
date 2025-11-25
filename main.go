@@ -8,11 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
 	"break-nlss/pkg/config"
 	"break-nlss/pkg/nlss"
 	"break-nlss/pkg/rubix"
 	"break-nlss/pkg/storage"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -36,7 +37,6 @@ func printUsage() {
 	fmt.Println()
 	fmt.Println("Environment Variables:")
 	fmt.Println("  RUBIX_NODE_URL  - Rubix node URL (default: localhost:20006)")
-	fmt.Println("  SENDER_PEER_ID  - Sender peer ID")
 	fmt.Println("  SENDER_DID      - Sender DID")
 	fmt.Println("  PRESET_FOLDER   - Path to preset folder (default: ./preset)")
 	fmt.Println()
@@ -103,7 +103,6 @@ func runTransfer() {
 	comment := transferCmd.String("comment", "", "Transfer comment (optional)")
 	rubixNode := transferCmd.String("rubix-node", "", "Rubix node URL (default: from env or localhost:20006)")
 	presetFolder := transferCmd.String("preset", "", "Preset folder path (default: from env or ./preset)")
-	senderPeerID := transferCmd.String("sender-peer", "", "Sender peer ID (default: from env)")
 	senderDID := transferCmd.String("sender-did", "", "Sender DID (default: from env)")
 
 	// File mode flags
@@ -125,7 +124,7 @@ func runTransfer() {
 		os.Exit(1)
 	}
 
-	var finalSenderPeerID, finalSenderDID string
+	var finalSenderDID string
 	var senderBalance float64
 
 	// Check if using file mode
@@ -151,7 +150,6 @@ func runTransfer() {
 		}
 
 		finalSenderDID = sender.DID
-		finalSenderPeerID = sender.PeerID
 		senderBalance = sender.Balance
 
 		fmt.Printf("Using sender from file: %s (Balance: %.2f RBT)\n", finalSenderDID, senderBalance)
@@ -168,12 +166,11 @@ func runTransfer() {
 		}
 	} else {
 		// Standard mode - use flags or env
-		finalSenderPeerID = *senderPeerID
 		finalSenderDID = *senderDID
 	}
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, *presetFolder, finalSenderPeerID, finalSenderDID)
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, *presetFolder, finalSenderDID)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -184,7 +181,6 @@ func runTransfer() {
 		fmt.Printf("Configuration error: %v\n", err)
 		fmt.Println("\nPlease set the following environment variables:")
 		fmt.Println("  RUBIX_NODE_URL  - Rubix node URL")
-		fmt.Println("  SENDER_PEER_ID  - Your peer ID")
 		fmt.Println("  SENDER_DID      - Your DID")
 		fmt.Println("\nOr use command-line flags:")
 		fmt.Println("  --from-file accounts.json --sender-index 0")
@@ -206,15 +202,12 @@ func runTransfer() {
 
 	// Perform transfer
 	params := rubix.TransferParams{
-		RubixNodeURL:     cfg.RubixNodeURL,
-		SenderPeerID:     cfg.SenderPeerID,
-		SenderDID:        cfg.SenderDID,
-		ReceiverDID:      *receiver,
-		Amount:           *amount,
-		Comment:          *comment,
-		PrivateKeyPath:   cfg.PrivateKeyPath,
-		PrivateSharePath: cfg.PrivateSharePath,
-		NLSSOutputDir:    cfg.NLSSOutputDir,
+		RubixNodeURL:  cfg.RubixNodeURL,
+		SenderDID:     cfg.SenderDID,
+		ReceiverDID:   *receiver,
+		Amount:        *amount,
+		Comment:       *comment,
+		NLSSOutputDir: cfg.NLSSOutputDir,
 	}
 
 	if err := rubix.TransferTokens(params); err != nil {
@@ -232,7 +225,7 @@ func runBalance() {
 	balanceCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "", *did)
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", *did)
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -271,7 +264,7 @@ func runListDIDs() {
 	listCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "", "")
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "")
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -312,7 +305,7 @@ func runExportDIDs() {
 	exportCmd.Parse(os.Args[2:])
 
 	// Load configuration
-	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "", "")
+	cfg, err := config.LoadConfigWithOverrides(*rubixNode, "", "")
 	if err != nil {
 		fmt.Printf("Error loading config: %v\n", err)
 		os.Exit(1)
@@ -337,7 +330,6 @@ func runExportDIDs() {
 		if account.RBTAmount > *minBalance {
 			accounts = append(accounts, storage.DIDAccount{
 				DID:        account.DID,
-				PeerID:     "", // Not available from API, will need to be set manually if needed
 				Balance:    account.RBTAmount,
 				DIDType:    account.DIDType,
 				PledgedRBT: account.PledgedRBT,
