@@ -1,0 +1,110 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Compiled binary
+break-nlss
+transfer-app
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.txt
+coverage.html
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# Go build cache
+.cache/
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS-specific files
+Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+
+# Environment variables (contains secrets!)
+.env
+.env.local
+.env.*.local
+
+# Private keys and sensitive images
+preset/
+preset/*
+*.pem
+*.key
+
+# Generated private shares (output directory)
+output/
+output/*
+
+# DID files and share images (sensitive)
+*.png
+did.png
+pubShare.png
+pvtShare.png
+PrivateShare.png
+PublicShare.png
+DID.png
+
+# Accounts files (may contain sensitive data)
+accounts.json
+dids.txt
+dids_*.txt
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# Debug files
+debug
+__debug_bin
+
+# Air live reload
+tmp/
+
+# Test coverage
+*.cover
+profile.cov
+
+# Documentation generation
+docs/_build/
+
+# Backup files
+*.backup
+*.old
+
+# Local development
+local/
+.local/
