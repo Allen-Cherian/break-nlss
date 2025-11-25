@@ -23,8 +23,11 @@ type RandPos struct {
 
 // BreakNLSS reconstructs a private share from DID and public share bytes
 func BreakNLSS(didBytes, pubBytes []byte) ([]byte, error) {
+	fmt.Printf("[DEBUG] BreakNLSS started - converting bytes to bit strings...\n")
 	didBits := ConvertToBitString(didBytes)
+	fmt.Printf("[DEBUG] DID converted to %d bits\n", len(didBits))
 	pubBits := ConvertToBitString(pubBytes)
+	fmt.Printf("[DEBUG] Public share converted to %d bits\n", len(pubBits))
 
 	if len(pubBits) < 8*len(didBits) {
 		return nil, fmt.Errorf("pubBits too small: got %d, need %d", len(pubBits), 8*len(didBits))
@@ -270,11 +273,12 @@ func CreatePNGImage(pixels []byte, width int, height int, file string) error {
 
 // ConvertToBitString converts bytes to binary string
 func ConvertToBitString(data []byte) string {
-	var bits string = ""
+	var builder strings.Builder
+	builder.Grow(len(data) * 8) // Pre-allocate memory for efficiency
 	for i := 0; i < len(data); i++ {
-		bits = bits + fmt.Sprintf("%08b", data[i])
+		builder.WriteString(fmt.Sprintf("%08b", data[i]))
 	}
-	return bits
+	return builder.String()
 }
 
 // ConvertString appends bit to string
